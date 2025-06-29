@@ -49,7 +49,7 @@ Search:
 			}
 		}
 		for i := range stddev {
-			stddev[i] = math.Sqrt(stddev[i])
+			stddev[i] = math.Sqrt(stddev[i] / float64(len(numbers)))
 		}
 		cov := make([][]float64, 10)
 		for i := range cov {
