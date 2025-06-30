@@ -9,8 +9,12 @@ import (
 	"math"
 )
 
-// Max is the max number to factor
-const Max = 1024
+const (
+	// Bit is the number of bits
+	Bits = 16
+	// Max is the max number to factor
+	Max = 1 << Bits
+)
 
 func main() {
 	primes := []uint64{2, 3}
@@ -29,10 +33,9 @@ Search:
 		}
 		primes = append(primes, i)
 	}
-	fmt.Println(primes)
 
-	corr := func(numbers []uint64) {
-		avg := make([]float64, 10)
+	corr := func(numbers []uint64) [][]float64 {
+		avg := make([]float64, Bits)
 		for _, number := range numbers {
 			for i := range avg {
 				avg[i] += float64((number >> i) & 1)
@@ -41,7 +44,7 @@ Search:
 		for i := range avg {
 			avg[i] /= float64(len(numbers))
 		}
-		stddev := make([]float64, 10)
+		stddev := make([]float64, Bits)
 		for _, number := range numbers {
 			for i := range stddev {
 				diff := avg[i] - float64((number>>i)&1)
@@ -51,9 +54,9 @@ Search:
 		for i := range stddev {
 			stddev[i] = math.Sqrt(stddev[i] / float64(len(numbers)))
 		}
-		cov := make([][]float64, 10)
+		cov := make([][]float64, Bits)
 		for i := range cov {
-			cov[i] = make([]float64, 10)
+			cov[i] = make([]float64, Bits)
 		}
 		for _, number := range numbers {
 			for i := range cov {
@@ -70,10 +73,19 @@ Search:
 				cov[i][ii] /= (stddev[i] * stddev[ii])
 			}
 		}
-		for _, row := range cov {
-			fmt.Println(row)
-		}
+		return cov
 	}
-	corr(primes)
-	corr(composite)
+	a := corr(primes)
+	b := corr(composite)
+	sum, count := 0.0, 0.0
+	for i := range a {
+		for ii := range a[i] {
+			scale := a[i][ii] / b[i][ii]
+			sum += scale
+			count++
+			fmt.Printf("%f ", scale)
+		}
+		fmt.Println()
+	}
+	fmt.Println(sum / count)
 }
