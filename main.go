@@ -86,6 +86,9 @@ func main() {
 		sum, count := 0.0, 0.0
 		for i := range a {
 			for ii := range a[i] {
+				if i == 0 || i == 1 || ii == 0 || ii == 1 {
+					continue
+				}
 				scale := a[i][ii] / b[i][ii]
 				sum += scale
 				count++
