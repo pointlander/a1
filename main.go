@@ -69,7 +69,7 @@ func main() {
 					for ii := range cov[i] {
 						a := float64((number>>i)&1) - avg[i]
 						b := float64((number>>ii)&1) - avg[ii]
-						cov[i][ii] = a + b
+						cov[i][ii] = a * b
 					}
 				}
 			}
@@ -89,7 +89,7 @@ func main() {
 				if i == 0 || i == 1 || ii == 0 || ii == 1 {
 					continue
 				}
-				scale := a[i][ii] / b[i][ii]
+				scale := math.Abs(a[i][ii] / b[i][ii])
 				sum += scale
 				count++
 				fmt.Printf("%f ", scale)
