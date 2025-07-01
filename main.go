@@ -21,6 +21,37 @@ const (
 	Max = 1 << Bits
 )
 
+// linearRegression calculates the slope (m) and intercept (b) of a linear regression line
+// for a given set of data points using the least squares method.
+func linearRegression(data plotter.XYs) (m, b float64) {
+	n := float64(len(data))
+	if n == 0 {
+		return 0, 0 // Handle empty data set
+	}
+
+	var sumX, sumY, sumXY, sumXX float64
+	for _, p := range data {
+		sumX += p.X
+		sumY += p.Y
+		sumXY += p.X * p.Y
+		sumXX += p.X * p.X
+	}
+
+	// Calculate slope (m)
+	numeratorM := n*sumXY - sumX*sumY
+	denominatorM := n*sumXX - sumX*sumX
+	if denominatorM == 0 {
+		// Handle cases where all X values are the same (vertical line)
+		return math.Inf(1), 0 // Slope is infinite
+	}
+	m = numeratorM / denominatorM
+
+	// Calculate intercept (b)
+	b = (sumY - m*sumX) / n
+
+	return m, b
+}
+
 func main() {
 	process := func(Bits, Max uint64) float64 {
 		primes := []uint64{2, 3}
@@ -123,4 +154,11 @@ func main() {
 	if err != nil {
 		panic(err)
 	}
+
+	m, b := linearRegression(points)
+	phi := (1 + math.Sqrt(5)) / 2
+	fmt.Println("phi=", phi)
+	fmt.Println("1/phi=", 1/phi)
+	fmt.Println("m=", m)
+	fmt.Println("b=", b)
 }
