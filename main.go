@@ -91,6 +91,7 @@ func main() {
 			for i := range stddev {
 				stddev[i] = math.Sqrt(stddev[i] / float64(len(numbers)))
 			}
+			fmt.Println(stddev)
 			cov := make([][]float64, Bits)
 			for i := range cov {
 				cov[i] = make([]float64, Bits)
@@ -100,7 +101,7 @@ func main() {
 					for ii := range cov[i] {
 						a := float64((number>>i)&1) - avg[i]
 						b := float64((number>>ii)&1) - avg[ii]
-						cov[i][ii] = a * b
+						cov[i][ii] += a * b
 					}
 				}
 			}
@@ -120,9 +121,13 @@ func main() {
 				if i == 0 || i == 1 || ii == 0 || ii == 1 {
 					continue
 				}
-				scale := math.Abs(a[i][ii] / b[i][ii])
-				sum += scale
 				count++
+				scale := math.Abs(a[i][ii] / b[i][ii])
+				if math.IsInf(scale, 0) || math.IsNaN(scale) || scale > 20 {
+					fmt.Printf("%f ", scale)
+					continue
+				}
+				sum += scale
 				fmt.Printf("%f ", scale)
 			}
 			fmt.Println()
