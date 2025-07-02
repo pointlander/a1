@@ -5,6 +5,7 @@
 package main
 
 import (
+	"flag"
 	"fmt"
 	"math"
 
@@ -52,7 +53,13 @@ func linearRegression(data plotter.XYs) (m, b float64) {
 	return m, b
 }
 
-func main() {
+var (
+	// FlagCorr is the correlation mode
+	FlagCorr = flag.Bool("corr", false, "correlation mode")
+)
+
+// Corr is the correlation mode
+func Corr() {
 	process := func(Bits, Max uint64) float64 {
 		primes := []uint64{2, 3}
 		composite := []uint64{}
@@ -166,4 +173,13 @@ func main() {
 	fmt.Println("1/phi=", 1/phi)
 	fmt.Println("m=", m)
 	fmt.Println("b=", b)
+}
+
+func main() {
+	flag.Parse()
+
+	if *FlagCorr {
+		Corr()
+		return
+	}
 }
