@@ -184,7 +184,7 @@ func main() {
 	}
 
 	primes := []uint64{2, 3}
-	composite := []uint64{}
+	composites := []uint64{}
 Search:
 	for i := uint64(4); i < 1<<24; i++ {
 		max := uint64(math.Sqrt(float64(i)) + 1)
@@ -193,41 +193,76 @@ Search:
 				break
 			}
 			if i%prime == 0 {
-				composite = append(composite, i)
+				composites = append(composites, i)
 				continue Search
 			}
 		}
 		primes = append(primes, i)
 	}
 
-	points := make(plotter.XYs, 0, 8)
-	for _, prime := range primes {
-		p, count := prime, 0
-		for p != 0 {
-			if p&1 == 1 {
-				count++
+	{
+		points := make(plotter.XYs, 0, 8)
+		for _, prime := range primes {
+			p, count := prime, 0
+			for p != 0 {
+				if p&1 == 1 {
+					count++
+				}
+				p >>= 1
 			}
-			p >>= 1
+			points = append(points, plotter.XY{X: float64(prime), Y: float64(count)})
 		}
-		points = append(points, plotter.XY{X: float64(prime), Y: float64(count)})
+
+		p := plot.New()
+
+		p.Title.Text = "number vs bits"
+		p.X.Label.Text = "number"
+		p.Y.Label.Text = "bits"
+
+		scatter, err := plotter.NewScatter(points)
+		if err != nil {
+			panic(err)
+		}
+		scatter.GlyphStyle.Radius = vg.Length(1)
+		scatter.GlyphStyle.Shape = draw.CircleGlyph{}
+		p.Add(scatter)
+
+		err = p.Save(8*vg.Inch, 8*vg.Inch, "primes.png")
+		if err != nil {
+			panic(err)
+		}
 	}
 
-	p := plot.New()
+	{
+		points := make(plotter.XYs, 0, 8)
+		for _, composite := range composites {
+			c, count := composite, 0
+			for c != 0 {
+				if c&1 == 1 {
+					count++
+				}
+				c >>= 1
+			}
+			points = append(points, plotter.XY{X: float64(composite), Y: float64(count)})
+		}
 
-	p.Title.Text = "number vs bits"
-	p.X.Label.Text = "number"
-	p.Y.Label.Text = "bits"
+		p := plot.New()
 
-	scatter, err := plotter.NewScatter(points)
-	if err != nil {
-		panic(err)
-	}
-	scatter.GlyphStyle.Radius = vg.Length(1)
-	scatter.GlyphStyle.Shape = draw.CircleGlyph{}
-	p.Add(scatter)
+		p.Title.Text = "number vs bits"
+		p.X.Label.Text = "number"
+		p.Y.Label.Text = "bits"
 
-	err = p.Save(8*vg.Inch, 8*vg.Inch, "primes.png")
-	if err != nil {
-		panic(err)
+		scatter, err := plotter.NewScatter(points)
+		if err != nil {
+			panic(err)
+		}
+		scatter.GlyphStyle.Radius = vg.Length(1)
+		scatter.GlyphStyle.Shape = draw.CircleGlyph{}
+		p.Add(scatter)
+
+		err = p.Save(8*vg.Inch, 8*vg.Inch, "composites.png")
+		if err != nil {
+			panic(err)
+		}
 	}
 }
