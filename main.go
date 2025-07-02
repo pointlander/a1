@@ -182,4 +182,52 @@ func main() {
 		Corr()
 		return
 	}
+
+	primes := []uint64{2, 3}
+	composite := []uint64{}
+Search:
+	for i := uint64(4); i < 1<<24; i++ {
+		max := uint64(math.Sqrt(float64(i)) + 1)
+		for _, prime := range primes {
+			if prime > max {
+				break
+			}
+			if i%prime == 0 {
+				composite = append(composite, i)
+				continue Search
+			}
+		}
+		primes = append(primes, i)
+	}
+
+	points := make(plotter.XYs, 0, 8)
+	for _, prime := range primes {
+		p, count := prime, 0
+		for p != 0 {
+			if p&1 == 1 {
+				count++
+			}
+			p >>= 1
+		}
+		points = append(points, plotter.XY{X: float64(prime), Y: float64(count)})
+	}
+
+	p := plot.New()
+
+	p.Title.Text = "number vs bits"
+	p.X.Label.Text = "number"
+	p.Y.Label.Text = "bits"
+
+	scatter, err := plotter.NewScatter(points)
+	if err != nil {
+		panic(err)
+	}
+	scatter.GlyphStyle.Radius = vg.Length(1)
+	scatter.GlyphStyle.Shape = draw.CircleGlyph{}
+	p.Add(scatter)
+
+	err = p.Save(8*vg.Inch, 8*vg.Inch, "primes.png")
+	if err != nil {
+		panic(err)
+	}
 }
