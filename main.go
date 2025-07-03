@@ -309,6 +309,11 @@ func main() {
 					}
 				}
 			}
+			for i := range cov {
+				for ii := range cov[i] {
+					cov[i][ii] /= float64(len(numbers))
+				}
+			}
 			for _, row := range cov {
 				fmt.Println(row)
 			}
@@ -321,8 +326,8 @@ func main() {
 		avg, count := 0.0, 0.0
 		for row := range a {
 			for col := range a[row] {
-				fmt.Printf("%f ", b[row][col]/a[row][col])
-				avg += b[row][col] / a[row][col]
+				fmt.Printf("%f ", a[row][col]/b[row][col])
+				avg += a[row][col] / b[row][col]
 				count++
 			}
 			fmt.Println()
