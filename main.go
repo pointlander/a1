@@ -275,4 +275,89 @@ func main() {
 		CountBits()
 		return
 	}
+
+	process := func(bits, max uint64) float64 {
+		primes := []uint64{2, 3}
+		composites := []uint64{}
+	Search:
+		for i := uint64(4); i < max; i++ {
+			max := uint64(math.Sqrt(float64(i)) + 1)
+			for _, prime := range primes {
+				if prime > max {
+					break
+				}
+				if i%prime == 0 {
+					composites = append(composites, i)
+					continue Search
+				}
+			}
+			primes = append(primes, i)
+		}
+		process := func(numbers []uint64) [][]float64 {
+			cov := make([][]float64, bits)
+			for i := range cov {
+				cov[i] = make([]float64, bits)
+			}
+			for _, number := range numbers {
+				for i := range cov {
+					for ii := range cov[i] {
+						a := float64((number >> i) & 1)
+						b := float64((number >> ii) & 1)
+						if a == b {
+							cov[i][ii]++
+						}
+					}
+				}
+			}
+			for _, row := range cov {
+				fmt.Println(row)
+			}
+			return cov
+		}
+		a := process(primes)
+		fmt.Println()
+		b := process(composites)
+		fmt.Println()
+		avg, count := 0.0, 0.0
+		for row := range a {
+			for col := range a[row] {
+				fmt.Printf("%f ", b[row][col]/a[row][col])
+				avg += b[row][col] / a[row][col]
+				count++
+			}
+			fmt.Println()
+		}
+		return avg / count
+	}
+
+	points := make(plotter.XYs, 0, 8)
+	for bits := uint64(8); bits < 24; bits++ {
+		gain := process(bits, 1<<bits)
+		points = append(points, plotter.XY{X: float64(bits), Y: float64(gain)})
+	}
+	p := plot.New()
+
+	p.Title.Text = "bits vs ratio"
+	p.X.Label.Text = "bits"
+	p.Y.Label.Text = "ratio"
+
+	scatter, err := plotter.NewScatter(points)
+	if err != nil {
+		panic(err)
+	}
+	scatter.GlyphStyle.Radius = vg.Length(1)
+	scatter.GlyphStyle.Shape = draw.CircleGlyph{}
+	p.Add(scatter)
+
+	err = p.Save(8*vg.Inch, 8*vg.Inch, "ratio.png")
+	if err != nil {
+		panic(err)
+	}
+
+	m, b := linearRegression(points)
+	phi := (1 + math.Sqrt(5)) / 2
+	fmt.Println("phi=", phi)
+	fmt.Println("1/phi=", 1/phi)
+	fmt.Println("m=", m)
+	fmt.Println("b=", b)
 }
