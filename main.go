@@ -56,6 +56,8 @@ func linearRegression(data plotter.XYs) (m, b float64) {
 var (
 	// FlagCorr is the correlation mode
 	FlagCorr = flag.Bool("corr", false, "correlation mode")
+	// FlagCountBits count the bits
+	FlagCountBits = flag.Bool("count", false, "count the number of bits")
 )
 
 // Corr is the correlation mode
@@ -175,14 +177,8 @@ func Corr() {
 	fmt.Println("b=", b)
 }
 
-func main() {
-	flag.Parse()
-
-	if *FlagCorr {
-		Corr()
-		return
-	}
-
+// CountBits count the bits
+func CountBits() {
 	primes := []uint64{2, 3}
 	composites := []uint64{}
 Search:
@@ -264,5 +260,19 @@ Search:
 		if err != nil {
 			panic(err)
 		}
+	}
+}
+
+func main() {
+	flag.Parse()
+
+	if *FlagCorr {
+		Corr()
+		return
+	}
+
+	if *FlagCountBits {
+		CountBits()
+		return
 	}
 }
